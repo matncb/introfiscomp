@@ -1,25 +1,31 @@
 # Compilador
 FC := gfortran
 # Flags de compilação
-FFLAGS := -Wall -Wextra
+FFLAGS := -Wall -Wextra -O3
 
 # Diretórios
 SRC_DIR := exemplos
 BUILD_DIR := builds
 
-# Encontra todos os arquivos Fortran no diretório de exemplos
-SOURCES := $(wildcard $(SRC_DIR)/*.f90) $(wildcard $(SRC_DIR)/*.f) $(wildcard $(SRC_DIR)/*.for)
-EXECUTABLES := $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/%, $(basename $(SOURCES)))
+SOURCES := $(wildcard $(SRC_DIR)/*.f90) # wildcard busca aquivos correspondentes a um padrão (.f90)
 
-.PHONY: all clean
+# basename remove extensão do arquivo, $(patsubst origem/%, destino/%, lista)
+EXECUTABLES := $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/%, $(basename $(SOURCES))) 
 
-all: $(BUILD_DIR) $(EXECUTABLES)
+.PHONY: all clean # Diz que all e clean são alvos ficitícios, para não procurar por nenhum arquivo all ou clean
+
+all: $(BUILD_DIR) $(EXECUTABLES) # all depende de build dir e executables
+
+# $@ le a variável com mesmo nome do alvo
+# $< le primeira dependência
 
 # Cria o diretório de builds se não existir
 $(BUILD_DIR):
-	mkdir -p $@
+	mkdir -p $@ 
 
 # Regra genérica para compilar cada programa
+# % representa qualquer sequência de caracteres --> não inclui extensões de arquivos
+# %.* representa qualquer arquivo de qualquer extensão
 $(BUILD_DIR)/%: $(SRC_DIR)/%.*
 	$(FC) $(FFLAGS) $< -o $@
 
