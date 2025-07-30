@@ -2,8 +2,11 @@ program area
 
     implicit none ! Remove declaração implícita de variáveis
 
+    ! Declara variável real
     real :: r = 2.0, A
-    real, parameter :: pi = 4*atan(1.0)
+
+    ! parameter diz que é imutável
+    real, parameter :: pi = 4.*atan(1.0)
 
     A = pi*r**2
 
