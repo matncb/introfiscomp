@@ -1,6 +1,9 @@
 program float_precision
     implicit none
 
+    ! Obs: atribui na declaração das variáveis nesse código pq era tudo estático, então não teria teria problema
+    ! Não esquecer o SAVE implícito!!!
+
     ! Para usar uma subrotina, escraval call subrotina()
     call float_easy()
     print *, ''
@@ -15,8 +18,6 @@ contains
     ! Declarando uma subrotina --> Não há valor retornado
 
     subroutine float_easy()
-        implicit none
-
         ! Especificar tamanho do float
         real :: r =1.0
         real(kind = 8) :: x = 1.0
@@ -32,8 +33,6 @@ contains
     subroutine float_right()
         ! Dependendo do compilador, float_easy pode não ser correto (usualmente é)
         ! O jeito oficialmente correto é:
-
-        implicit none
 
         ! P = 10 número de dígitos R = 30 potência de 10
         integer, parameter :: dp = selected_real_kind(10,30)

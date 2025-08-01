@@ -29,7 +29,6 @@ program variables
 
 contains
     subroutine declare()
-        implicit none
         ! Para declarar variáveis, use
         ! <variable_type> :: <variable_name>, <variable_name>, ...
         ! Fortran é uma linguagem estaticamente tipada , o que significa que o tipo de cada variável é fixo quando o programa é compilado
@@ -74,7 +73,6 @@ contains
         ! No código principal não há problema, já que não há risco de reinicialização
         ! Ao usar em funções ou subrotinas, pode levar a resultados malucos, porque a variável será salva, e não reinicializada, como esperado
 
-        implicit none
         integer :: x = 0 ! Equivalente a integer, save :: x = 0
         x = x + 1
 
@@ -84,7 +82,6 @@ contains
 
     subroutine correct()
         ! Para resolver o problema anterior basta declarar e depois atribuir
-        implicit none
         integer :: x
         x = 0
         x = x + 1
@@ -94,8 +91,6 @@ contains
     end subroutine correct
 
     subroutine attributes()
-        implicit none
-
         ! PARAMETER. Valores constantes podem ser declarados com o atributo parameter
         real, parameter :: pi = 4.*atan(1.) ! Como é imutável, posso, de forma segura, já atribuir
 
