@@ -19,7 +19,7 @@ contains
         real, parameter :: pi = 4*atan(1.0)
         real, intent(in) :: radius
 
-        ! intent(in) diz que valor de entrada 
+        ! intent(in) diz que valor de entrada não modificável
 
         ! Para retornar o valor, o nome da função recebe o valor
         area_formula = pi*radius**2
