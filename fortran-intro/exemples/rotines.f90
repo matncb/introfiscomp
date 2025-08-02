@@ -59,6 +59,10 @@ program rotines
 contains ! Em baixo de contains, coloque subrotinas e funções
     ! Sequência de exemplos com as mais variadas sintaxes possíveis
 
+    ! Sintaxe do end:
+    ! No fortran antigo era apenas aceitável escrever end no final, sem mais nada
+    ! Atualmente, é considerado boa prática escrever end subroutine nome
+
     subroutine swap(a, b)
         real, intent(inout) :: a, b ! Leitura e escrita permitidas
         real :: temp

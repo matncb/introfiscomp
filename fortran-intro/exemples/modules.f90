@@ -16,8 +16,8 @@ module math_utils
 
     ! Posso ter acesso à variáveis privadas no código principal se, por exemplo, eu retornar ela em uma função
 
-    ! Não é permitido ter nenhum comando, nem mesmo atribuições dentro de um módulo
-    ! TODA VARIÁVEL SEMPRE TERA O ATRIBUTO SAVE !!!!!!
+    ! Não é permitido ter nenhum comando (exceto declaração de interfaces e tipos derivados), nem mesmo atribuições aqui (apenas junto com a declaração)
+    ! TODA VARIÁVEL SEMPRE TERÁ O ATRIBUTO SAVE !!!!!!
     ! É recomendado colocar apenas parâmetros nesse escopo
     ! Caso contrátrio, explicite o save para não gerar efeitos malucos sem perceber
 
@@ -45,17 +45,16 @@ contains ! Declarar as funções em baixo
 end module math_utils
 
 module counter
+  ! Vamos testar o atributo save em módulos
   implicit none
   private
   public :: increment, get_count
   
-  integer, save :: count = 0  ! save mantém o valor entre chamadas
+  integer, save:: count = 0  ! save mantém o valor entre chamadas
 
-  ! Atenção ao SAVE !!!!
+  ! Atenção ao SAVE (implícito ou não) !!!!
 
-  ! Se eu carregar o módulo em diferentes outros módulos e usar separadamente, o valor de count será o mesmo em todo lugar
-  ! Isso quer dizer que count será uma variável totalmente global, maior que o próprio módulo n
-  
+  ! Se eu carregar o módulo em diferentes outros módulos e usar separadamente, o valor de count será o mesmo em todo lugar 
 contains
   subroutine increment()
     count = count + 1
@@ -67,13 +66,56 @@ contains
 
 end module counter
 
+module tester1
+  ! Módulos podem carregar outros módulos 
+  use counter, only: increment, get_count ! Carrega o módulo count
+  implicit none
 
+  ! Dizer o que é privado e o que é público
+  private
+  public :: increment_test1, get_count_test1
+  
+contains
+  subroutine increment_test1()
+    call increment()
+  end subroutine increment_test1
+  
+  subroutine get_count_test1()
+    print *,'Valor do Contador',  get_count()
+  end subroutine get_count_test1
+
+end module tester1
+
+module tester2
+  ! Módulos podem carregar outros módulos 
+  use counter, only: increment, get_count ! Carrega o módulo count
+  implicit none
+
+  ! Dizer o que é privado e o que é público
+  private
+  public :: increment_test2, get_count_test2
+  
+contains
+  subroutine increment_test2()
+    call increment()
+  end subroutine increment_test2
+  
+  subroutine get_count_test2()
+    print *,'Valor do contador',  get_count()
+  end subroutine get_count_test2
+
+end module tester2
+
+
+! Programa principal
 program modules
     ! Para usar o módulo basta usar o comando use
     ! Se only for omitido o programa vai carregar tudo
     ! É considerado boa prática deixar explícito
 
     use math_utils, only: PI, add, print_internal_var
+    use tester1, only: increment_test1, get_count_test1
+    use tester2, only: increment_test2, get_count_test2
 
     implicit none ! Depois de carregar módulos
     real :: result
@@ -85,5 +127,13 @@ program modules
     call print_internal_var()
     print *, "Resultado:", result
     print *, "Valor de PI:", PI
+
+    print *, ''
+    print *, 'Vamos testar atributo save (tester1 e depois tester2)'
+    call get_count_test1()
+    call get_count_test2()
+    call increment_test1() ! Alterar usando o tester1
+    call get_count_test1()
+    call get_count_test2() ! Também alterou em tester2, devido ao atributo save
 
 end program modules
