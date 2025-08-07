@@ -11,6 +11,9 @@ program loops
     ! [início, fim] formam intervalo fechado
     ! Não alterar contador (var) dentro do loop
 
+    ! É possível escrever de forma implícita
+    !(expressão, contador = inicio, fim, passo)
+
     ! Sintaxe do while (equivalente ao comum while)
     ! do while (condição)
     !   comandos
@@ -26,6 +29,18 @@ program loops
 
     ! Loops podem ser aninhados normalmente
 
+    ! É possível usar tags para fazer um loop e nos comandos exit e cycle
+
+    ! Tags [nome]: ! do ...
+    !    ...
+    !   exit [nome]   ! ou cycle [nome]
+    !    ...
+    ! end do [nome]
+
+    ! Muito útil para loops aninhados
+    ! Sem tags, ao usar exit e cycle, sempre estará implícito que esses comandos atuam sobre o loop mais interno
+    ! Para deixar isso claro ou para fazer isso com loops externos, as tags são úteis
+
     integer :: i, j
 
     ! Incremento implícito
@@ -40,6 +55,10 @@ program loops
         print *, i
     end do
 
+    print *, ''
+
+    ! Escrever de forma implícita
+    print *, (i, i = 1,3)
     print *, ''
 
     ! While
@@ -81,11 +100,14 @@ program loops
         end do
     end do
 
-    ! Tags [nome]: 
-    ! do ...
-    !    ...
-    !   exit [nome]   ! ou cycle [nome]
-    !    ...
-    ! end do [nome]
+    print *, ''
+
+    ! Tags
+    rows: do i = 1, 4
+        cols: do j = 1, 3
+            if (j == 2) cycle rows  ! Pula para a próxima linha
+            print *, "(", i, ",", j, ")"
+        end do cols
+    end do rows
 
 end program loops
