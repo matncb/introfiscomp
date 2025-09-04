@@ -51,7 +51,7 @@ contains
             a = a/2._sp
         end do
 
-        precision = a
+        precision = a * 2._sp
         bits = iter -1
        
     end subroutine test_sp
@@ -86,7 +86,7 @@ contains
             a = a/2._dp
         end do
 
-        precision = a
+        precision = a * 2._dp
         bits = iter -1
        
     end subroutine test_dp
@@ -121,7 +121,7 @@ contains
             a = a/2._qp
         end do
 
-        precision = a
+        precision = a * 2._qp
         bits = iter -1
        
     end subroutine test_qp
