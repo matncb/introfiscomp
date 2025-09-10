@@ -1,4 +1,6 @@
 program exerB
+    ! Preciso formatar o x para um decimal
+    
     integer, parameter :: sp = kind(0.e0)
     integer, parameter :: dp = kind(0.d0)
     integer, parameter :: max_iter = 100000
