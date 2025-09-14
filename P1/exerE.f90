@@ -2,6 +2,7 @@ program exerE
     implicit none
 
     real, allocatable :: M(:, :)
+    integer :: ierr
 
     real :: epsilon
     integer :: n
@@ -10,9 +11,14 @@ program exerE
     read(*,*) epsilon
     read(*,*) n
 
-    allocate(M(n,n))
-    call M_fill()
+    allocate(M(n,n), stat = ierr)
 
+    if (ierr /= 0) then
+        print *, "Falha na alocação", ierr
+        stop
+    end if
+
+    call M_fill()
     call M_lambda()
 
     deallocate(M)
@@ -40,34 +46,42 @@ contains
         k = 0
         lambda_k = 0
 
+        ! Inicia vetor
         do i = 1,n
             x_k(i) = 1.
         end do
 
+        ! Normaliza vetor inicial
+        call normalize(x_k)
+
+        ! Calcula o próximo (não posos normalizar ainda)
         x_k_1 = matmul(M, x_k)
 
-        call normalize(x_k_1)
-        call normalize(x_k)
-        
         do
-            lambda_k_1 = dot_product(x_k, x_k_1)/dot_product(x_k_1, x_k_1)
+            ! Calcula lambda
+            lambda_k_1 = dot_product(x_k, x_k_1)/dot_product(x_k, x_k)
             precision = abs(lambda_k_1 - lambda_k)
 
-            if (precision < epsilon) exit
+            ! Verificações de saída
+
+            if (precision <= epsilon) exit
 
             if (k > max_iter) then
                 print *, "Exit by max iter"
             end if 
 
+            ! Próxima iteração
             k = k + 1
             x_k = x_k_1
-            x_k_1 = matmul(M, x_k_1)
 
-            call normalize(x_k_1)
+            call normalize(x_k)
+            x_k_1 = matmul(M, x_k)
 
             lambda_k = lambda_k_1
             
         end do
+
+        call normalize(x_k_1)
 
         print *, lambda_k_1
 

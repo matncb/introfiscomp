@@ -1,9 +1,9 @@
 program exerC
     ! M incluso ou não? Vou assumir que sim
-    integer :: M
-    read(*,*) M
+    integer :: N
+    read(*,*) N
 
-    call gen_prime_num_out(M)
+    call gen_prime_num_out(N)
 contains
     subroutine gen_prime_num_out(M)
         integer, intent(in) :: M

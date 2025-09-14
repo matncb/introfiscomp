@@ -1,10 +1,10 @@
 program exerD
     ! Pensar na precisão dos inteiros e do ponto flutuante
 
-    integer(8) :: N
-    read(*,*) N
+    integer(8) :: M
+    read(*,*) M
 
-     print '(F6.4)', pi_monte_carlo(N)
+     print '(F6.4)', pi_monte_carlo(M)
 
 contains
     function pi_monte_carlo(N) result(pi)
