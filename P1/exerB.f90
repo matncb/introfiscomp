@@ -1,6 +1,4 @@
 program exerB
-    ! Preciso formatar o x para um decimal
-    
     integer, parameter :: sp = kind(0.e0)
     integer, parameter :: dp = kind(0.d0)
     integer, parameter :: max_iter = 100000
@@ -9,44 +7,33 @@ program exerB
     real(sp), parameter :: x_sp_values(x_array_size) = [0.1_sp,0.2_sp,0.3_sp,0.4_sp]
     real(dp), parameter :: x_dp_values(x_array_size) = [0.1_dp,0.2_dp,0.3_dp,0.4_dp]
 
-    ! Não sei o que fazer com a saída para simples ou dupla. Primeiro simples e depois dupla? Intercalado?
-    ! Precisão negativa? Por definição do pdf sim, mas deveria tomar o módulo?
-
-    call eval_sp_array_precision()
-    call eval_dp_array_precision()
+    call eval_precision()
     print *, ""
 
     print *, "Como resposta geral, nas condições avaliadas, podemos aproximar logarítimos por séries."
     print *, "Entretanto, se x fosse maior que 1, a série não iria convergir."
-    print *, "Para valores muito próximos de 1, o número de iterações até chegar na precisão aumenta drasticamente."
+    print *, "Para valores muito próximos de 1, o número de iterações até chegar no limite da precisão" 
+    print *, "simples ou dupla aumenta drasticamente."
+    print *, "Porém, não podemos esquecer que os erros de cálculo vão se empilhando ao fazer mais iterações."
+    print *, "Logo, na prática, com x menor temos precisão efetiva maior."
     print *, "Quanto menor for o valor de x, melhor o método de série funciona."
 
 contains
-    subroutine eval_sp_array_precision()
-        integer :: i
-        real(sp) :: precision
 
-        print *, "PRECISAO SIMPLES"
+    subroutine eval_precision()
+        integer :: i
+        real(sp) :: precision_sp
+        real(dp) :: precision_dp
+
         do i = 1, x_array_size
-            precision = eval_ln_precision_sp(x_sp_values(i))
+            precision_sp = eval_ln_precision_sp(x_sp_values(i))
+            precision_dp = eval_ln_precision_dp(x_dp_values(i))
+
             write(*, '(F3.1)', advance='NO') x_sp_values(i)
-            write(*, *) ' ', precision
+            write(*, *) ' ', precision_sp, precision_dp
         end do
 
-    end subroutine eval_sp_array_precision
-
-    subroutine eval_dp_array_precision()
-        integer :: i
-        real(dp) :: precision
-
-        print *, "PRECISAO DUPLA"
-        do i = 1, x_array_size
-            precision = eval_ln_precision_dp(x_dp_values(i))
-            write(*, '(F3.1)', advance='NO') x_dp_values(i)
-            write(*, *) ' ', precision
-        end do
-
-    end subroutine eval_dp_array_precision
+    end subroutine eval_precision
 
     function eval_ln_precision_sp(x) result(precision)
         real(sp), intent(in) :: x
