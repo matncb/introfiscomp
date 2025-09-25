@@ -71,7 +71,7 @@ contains
         h = find_h(N)
         x0 = a + h
 
-        do i = 1, N
+        do i = 1, int(N/2)
             res = res + h/2 * (fn(x0,h,1) + 2*fn(x0,h,0) + fn(x0,h,-1))
             x0 = x0 + 2*h
         end do
@@ -100,7 +100,7 @@ contains
 
         res = 0.
         h = (b-a)/N
-        x0 = a + 2*h
+        x0 = a
 
         do i = 1, int(N/4)
             res = res + 2*h/45 * (7*fn(x0,h,0) + 32*fn(x0,h,1) &
