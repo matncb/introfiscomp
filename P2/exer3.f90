@@ -37,6 +37,51 @@ module methods
     implicit none
 
 contains
+    function dir(x0, N) result(res)
+        integer, intent(in) :: N
+        real(p), intent(in) :: x0
+        real(p) :: res
+
+        real(p) :: a, b, h, m
+        integer :: i, max_steps
+        
+        h = 0.1_p         ! Passo inicial da busca
+        max_steps = 1000  ! Limite para não entrar em loop infinito
+        
+        ! 1. Encontrar um intervalo [a,b] que contenha a raiz (mudança de sinal)
+        a = x0
+        b = x0
+        do i = 1, max_steps
+            b = x0 + i * h
+            if (f(a) * f(b) < 0.0_p) exit ! Encontrou o intervalo
+            
+            a = x0 - i * h
+            if (f(b) * f(a) < 0.0_p) then ! Troca a e b para manter a < b
+                m = a
+                a = b
+                b = m
+                exit
+            end if
+            a = x0 ! Reseta 'a'
+        end do
+
+        ! 2. Se um intervalo foi encontrado, aplicar N iterações da bisseção
+        if (f(a) * f(b) < 0.0_p) then
+            do i = 1, N
+                m = (a + b) / 2.0_p
+                if (f(a) * f(m) < 0.0_p) then
+                    b = m
+                else
+                    a = m
+                end if
+            end do
+            res = (a + b) / 2.0_p
+        else
+            res = -9999.9_p ! Retorna um valor de erro se não encontrar a raiz
+        end if
+        
+    end function dir
+
     function NR(x0, N) result(res)
         integer :: i, N
         real(p) :: x0, res
@@ -70,10 +115,77 @@ contains
 
 end module methods
 
-
-
-program exer3
+module data_handler
+    use precision
+    use methods
+    use func
     implicit none
 
+    contains
 
+    subroutine gen_out(N, x0_list, x1_list)
+        integer, intent(in) :: N
+        real(p), intent(in) :: x0_list(3)
+        real(p), intent(in) :: x1_list(3)
+        
+        real(p), allocatable :: matrix_out(:,:)
+
+        integer :: i, j
+
+        character(len = 50) :: label(10)
+        label(1) = "iter"
+        label(2) = "dir1"
+        label(3) = "dir2"
+        label(4) = "dir3"
+        label(5) = "NR1"
+        label(6) = "NR2"
+        label(7) = "NR3"
+        label(8) = "sec1"
+        label(9) = "sec2"
+        label(10) = "sec3"
+        
+        ! Derivada simétrica de 5 pontos não é usada msm?
+
+        allocate(matrix_out(N, 9))
+
+        do i = 1, N
+            do j =1, 3
+                matrix_out(i,j) = dir(x0_list(j),i)
+                matrix_out(i, 3 + j) = NR(x0_list(j),i)
+                matrix_out(i, 6 + j) = sec(x0_list(j),x1_list(j),i)
+            end do
+        end do
+
+        open(unit=1, file="tab3_out.dat", status="replace", action = "write") 
+
+        do i = 1, 10
+            write(1, '(A, A)', advance='no') trim(label(i)), '   '
+        end do
+        write(1, *) 
+            
+        do i = 1, N
+            write(1,"(I5)", advance = "no") i
+            write(1, *) matrix_out(i, :)
+        end do
+
+        close(1)
+
+        deallocate(matrix_out)
+    end subroutine gen_out
+
+end module data_handler
+
+program exer3
+    use precision
+    use data_handler
+    implicit none
+
+    real(p),parameter :: x0_list(3) = (/-1.,1.5,5./)
+    real(p), parameter :: x1_list(3) = (/-1.1,1.6,5.1/)
+
+    integer :: N
+
+    read(*,*) N
+
+    call gen_out(N, x0_list, x1_list)
 end program exer3
