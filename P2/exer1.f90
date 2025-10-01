@@ -188,20 +188,19 @@ module data_handler
         end do
 
         ! Calcular diferença do valor teórico
-        matrix_out = transpose(matrix_out) ! h_num x 6 -> 6 x h_num
-        matrix_out(1, :) = abs(matrix_out(1,:) - df(x0))
-        matrix_out(2, :) = abs(matrix_out(2,:) - df(x0))
-        matrix_out(3, :) = abs(matrix_out(3,:) - df(x0))
-        matrix_out(4, :) = abs(matrix_out(4,:) - ddf(x0))
-        matrix_out(5, :) = abs(matrix_out(5,:) - ddf(x0))
-        matrix_out(6, :) = abs(matrix_out(6,:) - dddf(x0))
+        matrix_out(:, 1) = abs(matrix_out(:,1) - df(x0))
+        matrix_out(:, 2) = abs(matrix_out(:,2) - df(x0))
+        matrix_out(:, 3) = abs(matrix_out(:,3) - df(x0))
+        matrix_out(:, 4) = abs(matrix_out(:,4) - ddf(x0))
+        matrix_out(:, 5) = abs(matrix_out(:,5) - ddf(x0))
+        matrix_out(:, 6) = abs(matrix_out(:,6) - dddf(x0))
 
         print *, "Melhores valores de h: "
         print *, ""
 
         do i = 1, 6
-            min_val = minval(matrix_out(i, :))
-            min_ind_vec = minloc(matrix_out(i, :))
+            min_val = minval(matrix_out(:, i))
+            min_ind_vec = minloc(matrix_out(:, i))
             min_ind = min_ind_vec(1)
 
             print *, trim(label(i+1)), " :"
@@ -210,8 +209,6 @@ module data_handler
             print *, "Diferença de ", min_val
             print *, ""
         end do
-
-        matrix_out = transpose(matrix_out)
 
         open(unit=1, file="tab1_out.dat", status="replace", action = "write") 
 

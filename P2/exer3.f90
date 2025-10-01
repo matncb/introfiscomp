@@ -37,10 +37,10 @@ module methods
     implicit none
 
 contains
-    function dir(x0, N) result(res)
+    subroutine dir(x0, N, res_array)
         integer, intent(in) :: N
         real(p), intent(in) :: x0
-        real(p) :: res
+        real(p), intent(out):: res_array(N)
 
         real(p) :: a, b, h, m
         integer :: i, max_steps
@@ -50,18 +50,11 @@ contains
         
         a = x0
         b = x0
+        !Intervalo de a até b --> abrir intervalo de h até que contenha a raíz
         do i = 1, max_steps
             b = x0 + i * h
-            if (f(a) * f(b) < 0.0_p) exit
-            
             a = x0 - i * h
-            if (f(b) * f(a) < 0.0_p) then
-                m = a
-                a = b
-                b = m
-                exit
-            end if
-            a = x0 
+            if (f(a)*f(b) < 0.0_p) exit
         end do
 
         if (f(a) * f(b) < 0.0_p) then
@@ -72,31 +65,32 @@ contains
                 else
                     a = m
                 end if
+                res_array(i) = (a + b) / 2.0_p
             end do
-            res = (a + b) / 2.0_p
         else
-            res = -9999.9_p
+            res_array(:) = x0 ! nãp foi possível buscar
         end if
         
-    end function dir
+    end subroutine dir
 
-    function NR(x0, N) result(res)
+    subroutine NR(x0, N, res_array)
         integer :: i, N
-        real(p) :: x0, res
+        real(p) :: x0
+        real(p), intent(out) :: res_array(N)
 
         real(p) :: xi, xi1
         xi = x0
         do i = 0, N-1
             xi1 = xi - f(xi)/df(xi)
             xi = xi1
+            res_array(i+1) = xi1
         end do
+    end subroutine NR
 
-        res = xi1
-    end function NR
-
-    function sec(x0, x1, N) result(res)
+    subroutine sec(x0, x1, N, res_array)
         integer :: i, N
-        real(p) :: x0, x1, res
+        real(p) :: x0, x1
+        real(p), intent(out) :: res_array(N)
 
         real(p) :: xi, xi1, xi11
         xi11 = x0
@@ -106,10 +100,10 @@ contains
             xi1 = xi - f(xi) * (xi - xi11)/(f(xi) - f(xi11))
             xi11 = xi
             xi = xi1
-        end do
 
-        res = xi1
-    end function sec
+            res_array(i+1) = xi1
+        end do
+    end subroutine sec
 
 end module methods
 
@@ -146,12 +140,10 @@ module data_handler
 
         allocate(matrix_out(N, 9))
 
-        do i = 1, N
-            do j =1, 3
-                matrix_out(i,j) = dir(x0_list(j),i)
-                matrix_out(i, 3 + j) = NR(x0_list(j),i)
-                matrix_out(i, 6 + j) = sec(x0_list(j),x1_list(j),i)
-            end do
+        do j =1, 3
+            call dir(x0_list(j),N,matrix_out(:,j))
+            call NR(x0_list(j),N,matrix_out(:,3+j))
+            call sec(x0_list(j),x1_list(j),N,matrix_out(:,6+j))
         end do
 
         open(unit=1, file="tab3_out.dat", status="replace", action = "write") 
