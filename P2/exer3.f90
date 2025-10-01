@@ -20,13 +20,13 @@ contains
     function f(x) result(res)
         real(p) :: x
         real(p) :: res
-        res = x**3 - 2*x**2 -x + 3
+        res = x**3 - 3*x**2 -x + 3
     end function f
 
     function df(x) result(res)
         real(p) :: x
         real(p) :: res
-        res = 3*x**2 - 4*x -1
+        res = 3*x**2 - 6*x -1
     end function df
 
 end module func
@@ -45,27 +45,25 @@ contains
         real(p) :: a, b, h, m
         integer :: i, max_steps
         
-        h = 0.1_p         ! Passo inicial da busca
-        max_steps = 1000  ! Limite para não entrar em loop infinito
+        h = 0.1_p         
+        max_steps = 1000  
         
-        ! 1. Encontrar um intervalo [a,b] que contenha a raiz (mudança de sinal)
         a = x0
         b = x0
         do i = 1, max_steps
             b = x0 + i * h
-            if (f(a) * f(b) < 0.0_p) exit ! Encontrou o intervalo
+            if (f(a) * f(b) < 0.0_p) exit
             
             a = x0 - i * h
-            if (f(b) * f(a) < 0.0_p) then ! Troca a e b para manter a < b
+            if (f(b) * f(a) < 0.0_p) then
                 m = a
                 a = b
                 b = m
                 exit
             end if
-            a = x0 ! Reseta 'a'
+            a = x0 
         end do
 
-        ! 2. Se um intervalo foi encontrado, aplicar N iterações da bisseção
         if (f(a) * f(b) < 0.0_p) then
             do i = 1, N
                 m = (a + b) / 2.0_p
@@ -77,7 +75,7 @@ contains
             end do
             res = (a + b) / 2.0_p
         else
-            res = -9999.9_p ! Retorna um valor de erro se não encontrar a raiz
+            res = -9999.9_p
         end if
         
     end function dir
@@ -180,8 +178,8 @@ program exer3
     use data_handler
     implicit none
 
-    real(p),parameter :: x0_list(3) = (/-1.,1.5,5./)
-    real(p), parameter :: x1_list(3) = (/-1.1,1.6,5.1/)
+    real(p),parameter :: x0_list(3) = (/-1.3,1.3,2.7/)
+    real(p), parameter :: x1_list(3) = (/-1.4,1.4,2.8/)
 
     integer :: N
 
