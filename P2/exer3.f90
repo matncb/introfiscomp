@@ -170,8 +170,8 @@ program exer3
     use data_handler
     implicit none
 
-    real(p),parameter :: x0_list(3) = (/-1.3,1.3,2.7/)
-    real(p), parameter :: x1_list(3) = (/-1.4,1.4,2.8/)
+    real(p),parameter :: x0_list(3) = (/-1.3_p,1.3_p,2.7_p/)
+    real(p), parameter :: x1_list(3) = (/-1.4_p,1.4_p,2.8_p/)
 
     integer :: N
 
