@@ -8,44 +8,46 @@ module precision
     public :: sp, dp, p
 end module precision
 
-module param
+module parameters
     use precision
     implicit none
 
     real(p), parameter :: m = 80._p 
-    real(p),parameter :: P = 400._p
+    real(p),parameter :: power = 400._p
 
     private
-    public :: m, P
+    public :: m, power
 
-end module param
+end module parameters
 
 
 module euler
     use precision
-    use param
+    use parameters
     implicit none
     
 contains
-    subroutine solve(v0, T, delta_t, N, t_array, v_array)
-        real(p), intent(in) :: v0, T, delta_t
+    subroutine find_N(T, delta_t, N)
+        real(p), intent(in) :: T, delta_t
         integer, intent(out) :: N
+        N = int(T/delta_t) + 1
+    end subroutine find_N
+
+    subroutine solve(v0, delta_t, N, t_array, v_array)
+        real(p), intent(in) :: v0, delta_t
+        integer, intent(in) :: N
         integer :: i
         
-        real(p), allocatable, intent(out) :: v_array(:), t_array(:)
-    
-        N = int(T/delta_t) + 1
+        real(p) :: v_array(N), t_array(N)
 
-        allocate(v_array(N))
-        allocate(t_array(N))
+        v_array(1) = v0
+        t_array(1) = 0._p
 
-        v_array(0) = v0
-        t_array(0) = 0._p
-
-        do i = 0, N-2
-            v_array(i+1) = v_array(i) + delta_t * P/(m*v_array(i))
-            t_array(i+1) = (i+1)*delta_t
+        do i = 1, N-1
+            v_array(i+1) = v_array(i) + delta_t * power/(m*v_array(i))
+            t_array(i+1) = i*delta_t
         end do
+
     end subroutine solve
 
 end module euler
@@ -56,16 +58,42 @@ module data_handler
     implicit none
 
 contains
+    subroutine gen_out(v0, T, delta_t)
+        real(p), intent(in) :: v0, T, delta_t
+        integer :: i,N
 
-    subroutine gen_out()
+        real(p), allocatable:: v_array(:), t_array(:)
+
+        call find_N(T, delta_t, N)
+
+        allocate(v_array(N))
+        allocate(t_array(N))
+
+        call solve(v0,delta_t, N, t_array, v_array)
+
+        open(unit=1, file="vel1_out.dat", status="replace", action = "write") 
+            
+        do i = 1, N
+            write(1, *) t_array(i), v_array(i)
+        end do
+
+        close(1)
+
+        deallocate(t_array, v_array)
        
     end subroutine gen_out
 
 end module data_handler
 
-
-
 program exer1
+    use precision
+    use data_handler
+
     implicit none
+
+    real(p) :: v0, T, delta_t
+
+    read(*,*) T, delta_t, v0
+    call gen_out(v0, T, delta_t)
 
 end program exer1
