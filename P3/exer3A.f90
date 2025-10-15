@@ -111,18 +111,20 @@ contains
 
     subroutine solve_exact(m, l, theta0, delta_t, T)
         real(p) :: m, l, theta0, delta_t, T
-        real(p) :: thetai, time
+        real(p) :: thetai, time, E
         integer :: i
 
         thetai = theta0
         time = 0.
+
+        E = m*g*l * (1- cos(thetai)) 
 
         open(unit=3, file="exer3A_out_exact.dat", status="replace", action = "write") 
         
         i = 0 
         do
             if (time > T) exit 
-            write(3,*) time, thetai
+            write(3,*) time, thetai, E
 
             thetai = theta0 * cos(sqrt(g/l) *(i+1)*delta_t)
 
@@ -162,8 +164,8 @@ program exer3A
     theta0 = theta0 * pi/180.
 
     call solve(m, l, theta0, delta_t, T)
-    call solve_complete(m, l, theta0, delta_t, T)
-    call solve_exact(m, l, theta0, delta_t, T) 
+    !call solve_complete(m, l, theta0, delta_t, T)
+    !call solve_exact(m, l, theta0, delta_t, T) 
 
 
 end program exer3A

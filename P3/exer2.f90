@@ -111,6 +111,6 @@ program exer2
     theta_exact = atan(1.)/45. * 45 ! Exata é para 55 ou para o de maior alcance?
 
     call solve(theta)
-    call solve_exact(theta_exact)
+    !call solve_exact(theta_exact)
 
 end program exer2
