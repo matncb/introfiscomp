@@ -1,6 +1,6 @@
 program exerD
     ! Pensar na precisão dos inteiros e do ponto flutuante
-
+    implicit none
     integer(8) :: M
     read(*,*) M
 

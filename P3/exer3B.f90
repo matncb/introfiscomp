@@ -35,7 +35,7 @@ contains
         omegai = 0.
         time = 0.
 
-        open(unit=1, file="exer3A_out.dat", status="replace", action = "write") 
+        open(unit=1, file="exer3B_out.dat", status="replace", action = "write") 
         
         i = 0 
         do
@@ -43,7 +43,7 @@ contains
             write(1,*) time, thetai
               
             omegai1 = omegai - g/l * thetai *delta_t
-            thetai1 = thetai + omegai * delta_t
+            thetai1 = thetai + omegai1 * delta_t
 
             thetai = thetai1
             omegai = omegai1
@@ -76,7 +76,7 @@ contains
 
         E = m*g*l * (1- cos(thetai)) 
 
-        open(unit=2, file="exer3A_out_complete.dat", status="replace", action = "write") 
+        open(unit=2, file="exer3B_out_complete.dat", status="replace", action = "write") 
         
         i = 0 
         do
@@ -84,7 +84,7 @@ contains
             write(2,*) time, thetai, omegai, E
               
             omegai1 = omegai - g/l * thetai *delta_t
-            thetai1 = thetai + omegai * delta_t
+            thetai1 = thetai + omegai1 * delta_t
 
             thetai = thetai1
             omegai = omegai1
@@ -117,7 +117,7 @@ contains
         thetai = theta0
         time = 0.
 
-        open(unit=3, file="exer3A_out_exact.dat", status="replace", action = "write") 
+        open(unit=3, file="exer3B_out_exact.dat", status="replace", action = "write") 
         
         i = 0 
         do
@@ -146,7 +146,7 @@ contains
 
 end module solvers
 
-program exer3A
+program exer3B
     use precision
     use solvers
     implicit none
@@ -166,4 +166,4 @@ program exer3A
     call solve_exact(m, l, theta0, delta_t, T) 
 
 
-end program exer3A
+end program exer3B

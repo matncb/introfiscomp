@@ -1,5 +1,6 @@
 program exerC
     ! M incluso ou não? Vou assumir que sim
+    implicit none
     integer :: N
     read(*,*) N
 
