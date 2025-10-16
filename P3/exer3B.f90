@@ -12,8 +12,8 @@ module parameters
     use precision
     implicit none
 
-    real(p), parameter :: g = 9.8
-    real(p), parameter :: pi = 4.*atan(1.)
+    real(p), parameter :: g = 9.8_p
+    real(p), parameter :: pi = 4._p*atan(1._p)
     private
     
     public :: g, pi 
@@ -32,8 +32,8 @@ contains
         integer :: i
 
         thetai = theta0
-        omegai = 0.
-        time = 0.
+        omegai = 0._p
+        time = 0._p
 
         open(unit=1, file="exer3B_out.dat", status="replace", action = "write") 
         
@@ -49,9 +49,9 @@ contains
             omegai = omegai1
 
             if (thetai > pi) then
-                thetai = thetai - 2*pi                
+                thetai = thetai - 2._p*pi                
             else if (thetai < -pi) then
-                thetai = thetai + 2*pi
+                thetai = thetai + 2._p*pi
             end if
 
             i = i + 1
@@ -71,8 +71,8 @@ contains
         integer :: i
 
         thetai = theta0
-        omegai = 0.
-        time = 0.
+        omegai = 0._p
+        time = 0._p
 
         E = m*g*l * (1- cos(thetai)) 
 
@@ -90,12 +90,12 @@ contains
             omegai = omegai1
 
             if (thetai > pi) then
-                thetai = thetai - 2*pi                
+                thetai = thetai - 2._p*pi                
             else if (thetai < -pi) then
-                thetai = thetai + 2*pi
+                thetai = thetai + 2._p*pi
             end if
 
-            E =  m*g*l * (1- cos(thetai)) + m * l**2 * omegai**2/2
+            E =  m*g*l * (1- cos(thetai)) + m * l**2 * omegai**2/2._p
 
             i = i + 1
             time = delta_t * i
@@ -115,7 +115,7 @@ contains
         integer :: i
 
         thetai = theta0
-        time = 0.
+        time = 0._p
 
         open(unit=3, file="exer3B_out_exact.dat", status="replace", action = "write") 
         
@@ -127,9 +127,9 @@ contains
             thetai = theta0 * cos(sqrt(g/l) *(i+1)*delta_t)
 
             if (thetai > pi) then
-                thetai = thetai - 2*pi                
+                thetai = thetai - 2._p*pi                
             else if (thetai < -pi) then
-                thetai = thetai + 2*pi
+                thetai = thetai + 2._p*pi
             end if
 
             i = i + 1
@@ -159,11 +159,11 @@ program exer3B
     read(*,*) delta_t
     read(*,*) T
 
-    theta0 = theta0 * pi/180.
+    theta0 = theta0 * pi/180._p
 
     call solve(m, l, theta0, delta_t, T)
-    !call solve_complete(m, l, theta0, delta_t, T)
-    !call solve_exact(m, l, theta0, delta_t, T) 
+    call solve_complete(m, l, theta0, delta_t, T)
+    call solve_exact(m, l, theta0, delta_t, T) 
 
 
 end program exer3B

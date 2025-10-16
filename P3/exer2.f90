@@ -12,12 +12,13 @@ module parameters
     use precision
     implicit none
 
-    real(p), parameter :: delta_t = 0.1 
-    real(p),parameter :: vi = 500
-    real(p), parameter :: g = 9.8
+    real(p), parameter :: delta_t = 0.1_p
+    real(p),parameter :: vi = 500._p
+    real(p), parameter :: g = 9.8_p
+    real(p), parameter :: pi = 4._p*atan(1._p)
     private
     
-    public :: delta_t, vi,g 
+    public :: delta_t, vi,g, pi
 
 end module parameters
 
@@ -35,15 +36,15 @@ contains
         vxi = vi * cos(theta)
         vyi = vi * sin(theta)
 
-        xi = 0.
-        yi = 0.
+        xi = 0._p
+        yi = 0._p
 
         open(unit=1, file="output2.txt", status="replace", action = "write") 
         
         i = 0 
         do
-            if (yi < 0) exit  ! Inverter ou não a ordem do exit e write?
-            write(1,*) xi, yi ! Printo o menor que zero ou não?
+            if (yi < 0) exit  
+            write(1,*) xi, yi
               
             xi1 = xi + vxi * delta_t
             vxi1 = vxi
@@ -73,8 +74,8 @@ contains
         vxi = vi * cos(theta)
         vyi = vi * sin(theta)
 
-        xi = 0.
-        yi = 0.
+        xi = 0._p
+        yi = 0._p
 
         open(unit=2, file="trajexata.txt", status="replace", action = "write") 
 
@@ -84,7 +85,7 @@ contains
             write(2,*) xi, yi ! Printo o menor que zero ou não?
             
             xi = vxi * delta_t * (i+1)
-            yi = vyi * delta_t * (i+1) - g* (delta_t*(i+1))**2/2
+            yi = vyi * delta_t * (i+1) - g* (delta_t*(i+1))**2/2._p
 
             i = i + 1
             if (i >= max_iter) then
@@ -107,8 +108,8 @@ program exer2
     real(p) :: theta, theta_exact
     read(*,*) theta
 
-    theta = atan(1.)/45. * theta
-    theta_exact = atan(1.)/45. * 45 ! Exata é para 55 ou para o de maior alcance?
+    theta = theta * pi/180._p
+    theta_exact = 45._p * pi/180._p
 
     call solve(theta)
     !call solve_exact(theta_exact)
