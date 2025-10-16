@@ -81,8 +81,8 @@ contains
 
         i = 0 
         do
-            if (yi < 0) exit  ! Inverter ou não a ordem do exit e write?
-            write(2,*) xi, yi ! Printo o menor que zero ou não?
+            if (yi < 0) exit  
+            write(2,*) xi, yi 
             
             xi = vxi * delta_t * (i+1)
             yi = vyi * delta_t * (i+1) - g* (delta_t*(i+1))**2/2._p

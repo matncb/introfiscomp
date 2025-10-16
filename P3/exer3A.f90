@@ -164,8 +164,8 @@ program exer3A
     theta0 = theta0 * pi/180._p
 
     call solve(m, l, theta0, delta_t, T)
-    call solve_complete(m, l, theta0, delta_t, T)
-    call solve_exact(m, l, theta0, delta_t, T) 
+    !call solve_complete(m, l, theta0, delta_t, T)
+    !call solve_exact(m, l, theta0, delta_t, T) 
 
 
 end program exer3A
