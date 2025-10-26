@@ -21,11 +21,13 @@ module parameters
     real(p), parameter :: vd = 35.0_p
     real(p), parameter :: delta = 5.0_p
 
-    real(p), parameter :: goal_coord1(3) = (\40._p, 4._p, 2.5_p\)
-    real(p), parameter :: goal_coord2(3) = (\40._p, 10._p, 2.5_p\)
+    real(p), parameter :: goal_coord1(3) = (/40._p, 4._p, 2.5_p/)
+    real(p), parameter :: goal_coord2(3) = (/40._p, 10._p, 2.5_p/)
     
     real(p), parameter :: v0_norm = 100.0_p !km/h
     real(p), parameter :: omega = 39.0_p
+
+    integer, parameter :: max_iter = 10000
     
 end module parameters
 
@@ -37,20 +39,20 @@ module solver
 contains
     subroutine solve(beta, theta_0, phi_0)
 
-        real(p), parameter :: beta, gamma
-        real(p), parameter :: theta_0
-        real(p), parameter :: phi_0
+        real(p) :: beta, gamma
+        real(p) :: theta_0
+        real(p) :: phi_0
 
-        real(p), parameter :: v0x, v0y, v0z
-        real(p), parameter :: vxi, vyi, vzi, vxi1, vyi1, vzi1, vi
-        real(p), parameter :: xi, yi, zi, xi1, yi1, zi1
-        real(p), parameter :: ti, ti1
+        real(p) :: v0x, v0y, v0z
+        real(p) :: vxi, vyi, vzi, vxi1, vyi1, vzi1, vi
+        real(p) :: xi, yi, zi, xi1, yi1, zi1
+        real(p) :: ti, ti1
 
         integer :: i
 
-        v0x = v0/3.6_p * sin(theta_0)*cos(phi_0)
-        v0y = v0/3.6_p * sin(theta_0)*sin(phi_0)
-        v0z = v0/3.6_p * cos(theta_0)
+        v0x = v0_norm/3.6_p * sin(theta_0)*cos(phi_0)
+        v0y = v0_norm/3.6_p * sin(theta_0)*sin(phi_0)
+        v0z = v0_norm/3.6_p * cos(theta_0)
 
         open(unit=1, file="chute_out.dat", status="replace", action = "write") 
 
@@ -67,8 +69,8 @@ contains
         ti = 0.0_p
 
         do
-            if (x >= 40.0_p) exit
-            write(*,*) xi, yi
+            if (xi >= 40.0_p) exit
+            write(1,*) xi, yi
 
             vi = sqrt(vxi**2 + vyi**2 + vzi**2)
             gamma = a1 + a2/(1.0_p + exp((vi - vd)/delta))
@@ -99,7 +101,7 @@ contains
 
         end do
 
-        if ((yi >= goal_coord1(2)) .and. (yi <= goal_coord2(2)) .and. (zi <= goal_coord1(3)) and (zi >= 0)) then
+        if ((yi >= goal_coord1(2)) .and. (yi <= goal_coord2(2)) .and. (zi <= goal_coord1(3)) .and. (zi >= 0)) then
             print *, "sim"
         else
             print *, "nao"
@@ -111,20 +113,20 @@ contains
 
     subroutine solve_complete(beta, theta_0, phi_0)
 
-        real(p), parameter :: beta, gamma
-        real(p), parameter :: theta_0
-        real(p), parameter :: phi_0
+        real(p) :: beta, gamma
+        real(p) :: theta_0
+        real(p) :: phi_0
 
-        real(p), parameter :: v0x, v0y, v0z
-        real(p), parameter :: vxi, vyi, vzi, vxi1, vyi1, vzi1, vi
-        real(p), parameter :: xi, yi, zi, xi1, yi1, zi1
-        real(p), parameter :: ti, ti1
+        real(p) :: v0x, v0y, v0z
+        real(p) :: vxi, vyi, vzi, vxi1, vyi1, vzi1, vi
+        real(p) :: xi, yi, zi, xi1, yi1, zi1
+        real(p) :: ti, ti1
 
         integer :: i
 
-        v0x = v0/3.6_p * sin(theta_0)*cos(phi_0)
-        v0y = v0/3.6_p * sin(theta_0)*sin(phi_0)
-        v0z = v0/3.6_p * cos(theta_0)
+        v0x = v0_norm/3.6_p * sin(theta_0)*cos(phi_0)
+        v0y = v0_norm/3.6_p * sin(theta_0)*sin(phi_0)
+        v0z = v0_norm/3.6_p * cos(theta_0)
 
         open(unit=2, file="chute_out_complete.dat", status="replace", action = "write") 
 
@@ -141,8 +143,8 @@ contains
         ti = 0.0_p
 
         do
-            if (x >= 40.0_p) exit
-            write(*,*) xi, yi, zi
+            if (xi >= 40.0_p) exit
+            write(2,*) xi, yi, zi
 
             vi = sqrt(vxi**2 + vyi**2 + vzi**2)
             gamma = a1 + a2/(1.0_p + exp((vi - vd)/delta))
@@ -181,18 +183,18 @@ end module solver
 
 program exercicio
     use precision
-    use parameter
+    use parameters
     use solver
     implicit none
 
-    real(p), parameter :: beta
-    real(p), parameter :: theta_0
-    real(p), parameter :: phi_0
+    real(p) :: beta
+    real(p) :: theta_0
+    real(p) :: phi_0
 
     read(*,*) beta
     read(*,*) theta_0
     read(*,*) phi_0
 
-    call solve()
+    call solve(beta, theta_0, phi_0)
 
 end program exercicio
