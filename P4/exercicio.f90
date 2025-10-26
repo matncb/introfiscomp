@@ -69,14 +69,14 @@ contains
         ti = 0.0_p
 
         do
-            if (xi >= 40.0_p) exit
             write(1,*) xi, yi
+            if ((xi >= 40.0_p) .or. (zi < 0.0_p)) exit
 
             vi = sqrt(vxi**2 + vyi**2 + vzi**2)
             gamma = a1 + a2/(1.0_p + exp((vi - vd)/delta))
 
             vxi1 = vxi - delta_t*(gamma * vi*vxi + beta*omega*vyi)
-            vyi1 = vyi - delta_t*(gamma * vi*vyi + beta*omega*vxi)
+            vyi1 = vyi - delta_t*(gamma * vi*vyi - beta*omega*vxi)
             vzi1 = vzi - delta_t*(g + gamma*vi*vzi)
 
             xi1 = xi + vxi*delta_t
@@ -84,6 +84,8 @@ contains
             zi1 = zi + vzi*delta_t
 
             ti1 = (i+1)*delta_t
+
+            i = i + 1
 
             vxi = vxi1
             vyi = vyi1
@@ -97,11 +99,12 @@ contains
             
             if (i >= max_iter) then
                 print *, "Exit by max iter"
+                exit
             end if
 
         end do
 
-        if ((yi >= goal_coord1(2)) .and. (yi <= goal_coord2(2)) .and. (zi <= goal_coord1(3)) .and. (zi >= 0)) then
+        if ((yi >= goal_coord1(2)) .and. (yi <= goal_coord2(2)) .and. (zi <= goal_coord1(3)) .and. (zi >= 0.0_p)) then
             print *, "sim"
         else
             print *, "nao"
@@ -124,11 +127,17 @@ contains
 
         integer :: i
 
+        character(len=10) :: beta_str, theta_0_str, phi_0_str
+        write(beta_str, '(F6.4)') beta
+        write(theta_0_str, '(F4.2)') theta_0
+        write(phi_0_str, '(F5.2)') phi_0
+
         v0x = v0_norm/3.6_p * sin(theta_0)*cos(phi_0)
         v0y = v0_norm/3.6_p * sin(theta_0)*sin(phi_0)
         v0z = v0_norm/3.6_p * cos(theta_0)
 
-        open(unit=2, file="chute_out_complete.dat", status="replace", action = "write") 
+        open(unit=2, file="./graphics_out/" // trim(beta_str) // "_" // trim(theta_0_str) // "_" &
+            & // trim(phi_0_str) // ".dat", status="replace", action = "write") 
 
         i = 0
 
@@ -143,14 +152,14 @@ contains
         ti = 0.0_p
 
         do
-            if (xi >= 40.0_p) exit
-            write(2,*) xi, yi, zi
+            write(2,*) ti, xi, yi, zi
+            if ((xi >= 40.0_p) .or. (zi < 0.0_p)) exit
 
             vi = sqrt(vxi**2 + vyi**2 + vzi**2)
             gamma = a1 + a2/(1.0_p + exp((vi - vd)/delta))
 
             vxi1 = vxi - delta_t*(gamma * vi*vxi + beta*omega*vyi)
-            vyi1 = vyi - delta_t*(gamma * vi*vyi + beta*omega*vxi)
+            vyi1 = vyi - delta_t*(gamma * vi*vyi - beta*omega*vxi)
             vzi1 = vzi - delta_t*(g + gamma*vi*vzi)
 
             xi1 = xi + vxi*delta_t
@@ -158,6 +167,8 @@ contains
             zi1 = zi + vzi*delta_t
 
             ti1 = (i+1)*delta_t
+
+            i = i + 1
 
             vxi = vxi1
             vyi = vyi1
@@ -171,6 +182,7 @@ contains
             
             if (i >= max_iter) then
                 print *, "Exit by max iter"
+                exit
             end if
 
         end do
@@ -178,6 +190,19 @@ contains
         close(2)
 
     end subroutine solve_complete
+
+
+    subroutine generete_out_graphics()
+        ! Primeiro gráfico
+        call solve_complete(0.0005_p, 1.20_p, 0.15_p)
+        call solve_complete(0.0005_p, 1.45_p, 0.15_p)
+        call solve_complete(0.0005_p, 1.20_p, -0.15_p)
+
+        ! Segundo Gráfico
+        !call solve_complete(0.0005_p, 1.20_p, 0.15_p)
+        call solve_complete(0.0010_p, 1.20_p, 0.15_p)
+        call solve_complete(0.0001_p, 1.20_p, 0.15_p)     
+    end subroutine generete_out_graphics
 
 end module solver
 
@@ -196,5 +221,6 @@ program exercicio
     read(*,*) phi_0
 
     call solve(beta, theta_0, phi_0)
+    !call generete_out_graphics()
 
 end program exercicio
