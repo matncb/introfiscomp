@@ -237,6 +237,6 @@ program exercicio
     read(*,*) phi_0
 
     call solve(beta, theta_0, phi_0)
-    call generete_out_graphics()
+    !call generete_out_graphics()
 
 end program exercicio

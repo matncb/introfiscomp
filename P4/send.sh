@@ -6,7 +6,7 @@ USUARIO="a${NUMERO_USP}"
 SERVIDOR="basalto.ifsc.usp.br"
 
 # Lista de TODOS os arquivos possíveis para o envio
-LISTA_COMPLETA_DE_ARQUIVOS="exercicio.f90 grafA.pdf grafB.pdf grafC.pdf animacaoC.mp4"
+LISTA_COMPLETA_DE_ARQUIVOS="exercicio.f90 grafA.pdf grafB.pdf grafC.pdf"
 
 # Caminho completo da pasta de destino no servidor
 PASTA_DE_DESTINO="/public/fiscomp2025-2-guilherme/proj4/proj4_${NUMERO_USP}"
