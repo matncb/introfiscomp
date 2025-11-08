@@ -12,10 +12,11 @@ module parameters
     use precision
     implicit none
 
-    integer, parameter :: max_iter = 1000
+    integer, parameter :: max_iter = 40
+    integer, parameter :: transient = 0  ! Iterações iniciais a descartar
 
     private
-    public :: max_iter
+    public :: max_iter, transient
 end module parameters
 
 module logistic_map
@@ -50,79 +51,83 @@ program exerA
     integer :: i
     real(p) :: x_i, x_i_eps, d_i
     real(p) :: sum_ln_G_prime
-    real(p) :: lambda_sum
+    real(p) :: lambda_sum, lambda_fit
+    real(p) :: intercept_fit ! Variável para o coeficiente linear
     
-    ! Variáveis da Regressão Linear
-    integer :: n_discard, n_fit
-    real(p) :: i_fit, log_di
-    real(p) :: S_x, S_y, S_xx, S_xy
-    real(p) :: lambda_fit
-
+    ! Variáveis para regressão linear
+    integer :: count_fit, count_sum
+    real(p) :: sum_x, sum_y, sum_xx, sum_xy
+    real(p) :: x_val, y_val
+    
     read(*, *) x0
     read(*, *) r
     read(*, *) epsilon
 
-    
     open(unit=1, file="distA_out.dat", status='replace', action='write')
-
     x_i = x0
     x_i_eps = x0 + epsilon
+
     sum_ln_G_prime = 0.0_p
+    count_sum = 0.0_p
+
+    
+    ! regressão linear
+    count_fit = 0
+    sum_x = 0.0_p
+    sum_y = 0.0_p
+    sum_xx = 0.0_p
+    sum_xy = 0.0_p
 
     do i = 1, max_iter
 
         d_i = abs(x_i_eps - x_i)
         write(1, *) i, x_i, d_i
+ 
+        if (i > transient .and. d_i > 0.0_p) then
+            x_val = real(i, p)
+            y_val = log(d_i)
+            
+            sum_x = sum_x + x_val
+            sum_y = sum_y + y_val
+            sum_xx = sum_xx + x_val * x_val
+            sum_xy = sum_xy + x_val * y_val
+            count_fit = count_fit + 1
+        end if
         
-        sum_ln_G_prime = sum_ln_G_prime + log(abs(G_prime(r, x_i)))
+        if (i > transient) then
+            if (abs(G_prime(r, x_i)) > 0.0_p) then
+                sum_ln_G_prime = sum_ln_G_prime + log(abs(G_prime(r, x_i)))
+                count_sum = count_sum + 1
+            end if
+        end if
 
         x_i = G(r, x_i)
         x_i_eps = G(r, x_i_eps)
-        
+
     end do
 
     close(1)
 
-    lambda_sum = sum_ln_G_prime / real(max_iter, p)
-
-    ! Vamos descaetar 20% iniciais para o fit
-    n_discard = max_iter / 5 
-    n_fit = max_iter - n_discard
-
-    ! Reinicializa as somas para a regressão
-    S_x = 0.0_p
-    S_y = 0.0_p
-    S_xx = 0.0_p
-    S_xy = 0.0_p
-
-    ! Abre o arquivo novamente para leitura
-    open(unit=1, file="distA_out.dat", status='old', action='read')
-    
-    ! Loop de leitura e cálculo da regressão
-    do i = 1, max_iter
-        read(1, *) i_fit, x_i, d_i ! i_fit e x_i não são usados aqui
+    if (count_fit > 1) then
+        lambda_fit = (count_fit * sum_xy - sum_x * sum_y) / &
+                     (count_fit * sum_xx - sum_x * sum_x)
         
-        ! Descarta as primeiras iterações [cite: 79]
-        if (i > n_discard) then
-            log_di = log(d_i)
-            
-            ! y = log(d_i), x = i
-            S_x  = S_x  + real(i, p)
-            S_y  = S_y  + log_di
-            S_xx = S_xx + real(i, p)**2
-            S_xy = S_xy + real(i, p) * log_di
-        end if
-    end do
-    
-    close(1)
-    
-    ! Calcula o coeficiente angular (lambda) da regressão
-    ! lambda = (N*Sxy - Sx*Sy) / (N*Sxx - Sx*Sx)
-    lambda_fit = (real(n_fit, p) * S_xy - S_x * S_y) / &
-                 (real(n_fit, p) * S_xx - S_x**2)
-    
-    write(*, *) ""
-    write(*, *) 'Lambda Decaimento:   ', lambda_fit
-    write(*, *) 'Lambda Soma: ', lambda_sum
+        intercept_fit = (sum_y / real(count_fit, p)) - &
+                        lambda_fit * (sum_x / real(count_fit, p))
+    else
+        lambda_fit = 0.0_p
+        intercept_fit = 0.0_p
+    end if
+
+    if (count_sum > 0) then
+        lambda_sum = sum_ln_G_prime / real(count_sum, p)
+    else
+        lambda_sum = 0.0_p
+    end if
+
+    ! Saída
+    write(*, *) 'Lambda Fit:  ', lambda_fit
+    write(*, *) 'Lambda Soma:        ', lambda_sum
+    !write(*,*) intercept_fit
 
 end program exerA
