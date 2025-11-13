@@ -12,11 +12,13 @@ module parameters
     use precision
     implicit none
 
-    integer, parameter :: max_iter = 40
-    integer, parameter :: transient = 0  ! Iterações iniciais a descartar
+    ! Se os resultados estiverem estranhos para o ajuste, provavelmente o problema é o valor de max_iter_fit. Ele varia para cada situação. O enunciado não especifica como lidar com isso.
+    integer, parameter :: max_iter_fit = 40  ! Ponto de saturação. Depois disso o fit para de funcionar. A soma continua funcinando. Depende do valor de r testado, é necessário olhar o gráfico
+    integer, parameter :: max_iter_soma = 1000
+    integer, parameter :: transient = 5  ! Iterações iniciais a descartar
 
     private
-    public :: max_iter, transient
+    public :: max_iter_fit, max_iter_soma, transient
 end module parameters
 
 module logistic_map
@@ -78,20 +80,22 @@ program exerA
     sum_xx = 0.0_p
     sum_xy = 0.0_p
 
-    do i = 1, max_iter
+    do i = 1, max_iter_soma
 
         d_i = abs(x_i_eps - x_i)
         write(1, *) i, x_i, d_i
- 
-        if (i > transient .and. d_i > 0.0_p) then
-            x_val = real(i, p)
-            y_val = log(d_i)
-            
-            sum_x = sum_x + x_val
-            sum_y = sum_y + y_val
-            sum_xx = sum_xx + x_val * x_val
-            sum_xy = sum_xy + x_val * y_val
-            count_fit = count_fit + 1
+        
+        if (i < max_iter_fit) then
+            if (i > transient .and. d_i > 0.0_p) then
+                x_val = real(i, p)
+                y_val = log(d_i)
+                
+                sum_x = sum_x + x_val
+                sum_y = sum_y + y_val
+                sum_xx = sum_xx + x_val * x_val
+                sum_xy = sum_xy + x_val * y_val
+                count_fit = count_fit + 1
+            end if
         end if
         
         if (i > transient) then
