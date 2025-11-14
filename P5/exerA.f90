@@ -13,9 +13,9 @@ module parameters
     implicit none
 
     ! Se os resultados estiverem estranhos para o ajuste, provavelmente o problema é o valor de max_iter_fit. Ele varia para cada situação. O enunciado não especifica como lidar com isso.
-    integer, parameter :: max_iter_fit = 40  ! Ponto de saturação. Depois disso o fit para de funcionar. A soma continua funcinando. Depende do valor de r testado, é necessário olhar o gráfico
+    integer, parameter :: max_iter_fit = 41  ! Ponto de saturação. Depois disso o fit para de funcionar. A soma continua funcinando. Depende do valor de r testado, é necessário olhar o gráfico
     integer, parameter :: max_iter_soma = 1000
-    integer, parameter :: transient = 5  ! Iterações iniciais a descartar
+    integer, parameter :: transient = 4  ! Iterações iniciais a descartar
 
     private
     public :: max_iter_fit, max_iter_soma, transient
@@ -70,7 +70,7 @@ program exerA
     x_i_eps = x0 + epsilon
 
     sum_ln_G_prime = 0.0_p
-    count_sum = 0.0_p
+    count_sum = 0.0
 
     
     ! regressão linear
@@ -123,8 +123,8 @@ program exerA
         intercept_fit = 0.0_p
     end if
 
-    if (count_sum > 0) then
-        lambda_sum = sum_ln_G_prime / real(count_sum, p)
+    if ((count_sum-1) > 0) then
+        lambda_sum = sum_ln_G_prime / real(count_sum-1, p) ! o n-1 dividindo, ao invés de n, é estranho. Estou seguindo à risca as orientações do pdf.
     else
         lambda_sum = 0.0_p
     end if

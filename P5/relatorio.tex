@@ -1,0 +1,313 @@
+% Formatação geral ======================================================
+\documentclass[a4paper,brazil,12pt,nofootinbib,aps,pra,titlepage]{revtex4-2}
+
+% Idioma e escrita========================================================
+\usepackage[brazil]{babel} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc} 
+\usepackage{moreverb} % configuração de verbatim
+
+% Símbolos matemáticos e equações =======================================
+\usepackage{amsmath} % Fonte de alguns caracteres matemáticos
+\usepackage{slashed}
+\def\slash#1{#1\!\!\! /}
+\usepackage{bm} % Bold math
+\usepackage{braket} % \bra{}, \ket{} e \braket{} para Física Quântica
+\usepackage{nicefrac} % \nicefrac{}{} para frações estilizadas em declive
+\usepackage{bbm} % Fonte \mathbbm{} do símbolo 1 da matriz identidade 
+\usepackage{mathrsfs} % Fonte \mathscr{} do símbolo L da densidade lagrangiana.
+\usepackage{multirow} % Células com múltiplas linhas ou colunas em tabelas
+\usepackage{cancel}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% \usepgfplotslibrary{external}
+% \tikzexternalize
+
+% Configurações de operadores matemáticos ===============================
+\renewcommand{\sin}{\operatorname{sen}} 
+\renewcommand{\csc}{\operatorname{cosec}}
+%\renewcommand{\tan}{\operatorname{tg}} 
+\DeclareMathOperator{\tr}{Tr} 
+\DeclareMathOperator{\diag}{diag} 
+\newcommand{\imineq}[2]{\vcenter{\hbox{\includegraphics[height=#2ex]{#1}}}} 
+
+% Formato das figuras ================================================== 
+\usepackage{graphicx}
+% \usepackage{subfigure} 
+\newcommand{\incps}[5]{\includegraphics[#2,#3][#4,#5]{#1}}
+\newcommand{\incpicwh}[3]{\includegraphics[width=#2,height=#3]{#1}}
+
+% Hifenização ==========================================================
+\hyphenation{tem-pe-ra-tu-ra}
+
+\def\tocname{\huge Sumário}
+
+% \makeatletter
+% \renewcommand{\boldsymbol}[1]{\mbox{\boldmath $#1$}}
+% \makeatother
+
+% Pacotes de Tabela =====================================================
+\usepackage{xltabular}
+\usepackage{booktabs}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+\usepackage{hyperref}
+
+% TRADUÇÃO DO REVTEX4 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+ \def\andname{e}
+ \def\Dated@name{Data: }
+\makeatother
+
+% ESQUELETO %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+% Título do Relatório ================================================
+\title{Introdução à Física Computacional - Quinto Projeto \\ Dinâmica Populacional}
+% Nomes e E-mails dos Autores ========================================
+\author{Matheus Neme Campos Brustelo (n°15479472)}
+
+% Instituição =======================================
+\affiliation{Universidade de São Paulo, Instituto de Física de São Carlos}
+
+% Data ===============================================================
+
+\date{\today} % O comando ``\today'' insere automaticamente a data do
+
+\begin{figure}[b]
+  \centering
+  \includegraphics[height=0.45\paperheight]{Imagens/logotipo_ifsc.jpg}
+\end{figure}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+\section{\label{sec:resumo-objetivos} Resumo e Objetivos}
+
+Este relatório tem como objetivo mostrar o comportamento qualitativo do mapeamento logístico e o cálculo númerico de algumas grandezas relevantes, compreendendo como pequenas variações nas condições iniciais podem levar à resultados muito distintos. Na Seção \ref{sec:tratamento-geral}, fazemos o tratamento geral qualitativo do problema. Na Seção \ref{sec:rumo-ao-caos}, calculamos a Constante de Feigenbaum. Na seção \ref{sec:o-caos}, calculamos o Expoente de Lyapunov. 
+
+
+\newpage
+
+\section{\label{sec:tratamento-geral} Tratamento Geral}
+
+Seja N(t) o número de indivíduos de uma população em função do tempo, vamos modelar seu crescimento com base na seguinte equação diferencial:
+
+\begin{equation}
+ dN(t) = \alpha N(t) dt 
+\end{equation}
+em que $\alpha$ é uma constante positiva.
+
+Discretizando essa equação, ou seja, tomando $dN = N_{i+1} - N_i = \alpha N_i \Delta t$, temos:
+
+\begin{equation}
+ N_{i+1} = (1 + \alpha \Delta t) N_i = r N_i
+\end{equation}
+em que $\Delta t$ é um valor fixo (não necessariamente pequeno) e $r$ é uma constante positiva que é, necessariamente, maior que $1$. Caso fosse menor que $1$, $\alpha$ seria negativo,e, caso fosse igual a $1$, $\alpha$ seria nulo, o que contradiz a descrição do problema e, portanto, não tem sentido físico.
+
+Vamos, agora, limitar o crescimento da população até um teto, introduzindo o seguinte termo:
+
+\begin{equation}
+ N_{i+1} = r N_i (1 - N_i/N_{max})
+\end{equation}
+em que $N_{max}$ é o número máximo de indivíduos. Definindo $x_{i+1} = N_{i+1}/N_{max}$ e $x_i = N_i/N_{max}$, segue que:
+
+\begin{equation}
+ x_{i+1} = r x_i (1 - x_i)
+\end{equation}
+tais que qualquer $x_i$ deve estar entre $0$ e $1$ inclusives (limite máximo $N_{max}$ e mínimo 0 de indivíduos). Define-se, então o mapa logístico $G(x) = rx(1-x)$.
+
+Já tinhámos visto que, para ter sentido físico, $r > 1$, mas também temos que impor que qualquer valor $x_i$ deve ser mapeado para $x_{i+1}$ válido, isto é, entre $0$ e $1$ inclusives. Sabemos que $G(x)$ é uma parábola, e, assim, seu máximo tem $x_{max} = 1/2$ (válido) e $G(x_{max}) = r/4$. Como $G(x)$ deve ser menor ou igual $1$, segue que $r \le 4$. Com respeito a ser maior ou igual a zero, não precisamos nos preocupar, já que temos uma parábola tal que $0$ e $1$ são raízes e a concavidade é para baixo. Logo:
+
+\begin{equation}
+ 1 < r \le 4
+\end{equation}
+
+O objetivo geral, a partir de agora, é encontrar os pontos fixos dessa relação e, posteriormente, entender se há ou não convergência. Começando pelos pontos fixos, temos que procurar pelos pontos tais que $G(x^*) = x^*$. Matematicamente, temos:
+
+\begin{equation}
+ x^* = rx^*(1-x^*) \Rightarrow x^* = 0 \ ou \ 1 = r - rx^*
+\end{equation}
+ou seja, os pontos fixos são $x^* = 0$ e $x^* = (r-1)/r = 1 - 1/r $.
+
+Graficamente, isso é equivalente a encontrar os pontos sobre $G(x)$ e sobre a reta $y = x$ simultaneamente. Vamos observar essas duas curvas, juntamente com uma análise qualitativa da convergência ou não ao ponto fixo, a partir dos diagramas de cobweb da Figura \ref{fig:cobweb}. É evidente que apenas houve convergência para os valores de $r$ menores que 3. Nos outros casos, as ``teias'' aparentaram circular o ponto fixo de forma mais organizada em $r = 3 $ e menos organizada em $r = 4$. Para esses mesmos valores, podemos fazer um diagrama de evolução temporal, em que também podemos visualizar a convergência ou não dos resultados na Figura \ref{fig:time}. As conclusões são, obviamente, as mesmas, mas, dessa vez, podemos ter noção do quão disperso é o resultado encontrado para $r = 4$ e podemos ver que, para $r=3$, o gráfico parece convergir muito lentamente ao ponto fixo.
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.8\linewidth]{Imagens/time.png}
+ \caption{Diagramas de evolução temporal para os diferentes valores de r.}
+ \label{fig:time}
+\end{figure}
+
+
+\begin{figure}
+ \centering
+ \includegraphics[width=1.0\linewidth]{Imagens/coweb.png}
+ \caption{Diagramas de Cobweb para vários valores de $r$.}
+ \label{fig:cobweb}
+\end{figure}
+
+\clearpage
+
+\section{\label{sec:rumo-ao-caos} Rumo ao Caos}
+
+Vamos analisar de forma um pouco mais quantitativa a convergência ou não do ponto fixo, trabalhando antes da ocorrência do caos. Como vimos qualitativamente, para r maior do que 3 (e menor do que aproximadamente $3.5$ de acordo com o roteiro do professor) o ponto fixo $x^*$ torna-se instável. Do roteiro e da literatura, temos as seguintes informações: (i) O mapa converge para um comportamento oscilatório entre dois valores (ii) Aumentando progressivamente o valor de $r$, existe um valor para o qual o ciclo de oscilação passará a ser entre quatro valores fixos (iii) Novamente, se aumentarmos $r$, o valor será duplicado de novo, e assim por diante, caracterizando o fenômeno da duplicação de período. Com isso, temos que tomar a razão entre diferenças de valores sucessivos de r, e verificar que esse valor é constante (definido como constante de Feigenbaum $\delta$). Feito isso, podemos calcular quando a duplicação de períodos é infinita.
+
+Para que possamos averiguar essas afirmações, vamos começar vendo um diagrama de bifurcações (Figura \ref{fig:bifurcacao}), em que colocamos todos os $x_i$ possíveis no eixo $y$ para cada $r$ do eixo $x$, ignorando o início instável da evolução temporal. Observando a figura, conseguimos ver exatamente que, a partir de $r = 3$, $x_i$ passa a assumir dois possíveis valores, depois há uma bifurcação próxima de $r = 3,5$, e assim por diante, até que tenhamos caos.
+
+\begin{figure}[b!]
+ \centering
+ \includegraphics[width=0.6\linewidth]{Imagens/bifurcacao.png}
+ \caption{Diagrama de Bifurcação para o Mapa Logístico.}
+ \label{fig:bifurcacao}
+\end{figure}
+
+Para calcular o valor de $\delta$, seguiremos a lógica de um algoritmo de busca binária ou bifurcação. Para cada $r$ a ser verificado, descartaremos o transiente dos primeiros 100 mil pontos, por segurança. Depois, armazenaremos os próximos 2 mil em um array e o ordenaremos. Feito isso, basta contar, com uma tolerância estipulada, qual a quantidade de valores distintos nesse array. Assim, dado um intervalo inicial, que pode ser chutado usando o gráfico e refinado posteriormente, vamos fazer a bisseção do intervalo, buscando o ponto tal que o número de valores distintos muda. Esse é um algoritmo razoavelmente eficiente já que é $O(log N)$, $N = \Delta r/ p$, em que $\Delta r$ é a largura do intervalo e $p$ o menor valor distinguido pela precisão do computador.
+
+Com esse algoritmo, calcularemos 4 valores de $\delta$. Cada $\delta_i$ é definido como:
+
+\begin{equation}
+ \delta_i = \frac{r_{i+1} - r_i}{r_{i+2} - r_{i+1}}
+\end{equation}
+em que $r_i$ é o $r$ mínimo tal que $x$ passa a assumir $i +1$ valores distintos.
+
+Calcularemos os valores de $\delta_i$ de 1 até 4 com precisão dupla. A melhor estimativa para $\delta$ é a média de cada um dos valores encontrados, calculando, também, o desvio padrão da média (incerteza). Para estimar $r_{\infty}$, ou seja, o $r$ tal que a duplicação é infinita, vamos usar o valor de $\delta$ estimado. Como fomos até o quarto valor de $\delta$, temos até $r_6$. A soma de Progressão Geométrica nos dá, considerando $\delta$ constante:
+
+\begin{equation}
+ r_{\infty} = r_6 + \frac{r_6 - r_5}{\delta - 1}
+\end{equation}
+em que podemos desprezar as incertezas dos valores de $r$ e propagar a incerteza de $\delta$. Isso faz com que subestimemos levemente a incerteza, mas, ainda sim, é uma boa estimativa.
+
+Os resultados para os pontos de bifurcação estão na Tabela \ref{tab:r_valores}. As estimativas para $\delta$ estão na Tabela \ref{tab:delta_valores}. A comparação dos resultados finais com as incertezas estão na Tabela \ref{tab:resultados_finais}. Como mostrado na Tabela \ref{tab:resultados_finais}, os valores diferem de menos de duas vezes a incerteza dos resultados, mostrando que estamos dentro do intervalo esperado.
+
+\begin{table}[htbp]
+\centering
+\caption{Pontos de bifurcação $r_k$ (período $2^k$) calculados numericamente.}
+\label{tab:r_valores}
+\begin{tabular}{@{}ccc@{}}
+\toprule
+$k$ & Período ($2^{k-1} \to 2^k$) & Valor $r_k$ (Calculado) \\ \midrule
+1 & $1 \to 2$ & 2.999868547986772 \\
+2 & $2 \to 4$ & 3.449439071388043 \\
+3 & $4 \to 8$ & 3.544069604272262 \\
+4 & $8 \to 16$ & 3.564398825674024 \\
+5 & $16 \to 32$ & 3.568756001952749 \\
+6 & $32 \to 64$ & 3.569690229379870 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Estimativas da constante $\delta$ a partir dos valores de $r_k$.}
+\label{tab:delta_valores}
+\begin{tabular}{@{}ccc@{}}
+\toprule
+Estimativa & Fórmula & Valor Calculado \\ \midrule
+$\delta_1$ & $\frac{r_2 - r_1}{r_3 - r_2}$ & 4.750797757329750 \\
+$\delta_2$ & $\frac{r_3 - r_2}{r_4 - r_3}$ & 4.654901976522208 \\
+$\delta_3$ & $\frac{r_4 - r_3}{r_5 - r_4}$ & 4.665687156387996 \\
+$\delta_4$ & $\frac{r_5 - r_4}{r_6 - r_5}$ & 4.663935303365092 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Comparação dos resultados finais (média de $\delta$ e $r_{\infty}$) com a literatura.}
+\label{tab:resultados_finais}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Grandeza & Valor Calculado (com incerteza) & Valor da Literatura \\ \midrule
+Constante de Feigenbaum ($\delta$) & $4.684 \pm 0.022$ & $4.6692016...$ \\
+Início do Caos ($r_{\infty}$) & $3.5699438 \pm 0.0000015$ & $3.5699456...$ \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\clearpage
+
+\section{\label{sec:o-caos} O Caos}
+
+Agora, finalmente, podemos analisar o comportamente caótico, calculando o Expoente de Lyapunov. A análise consiste em dois métodos distintos. O primeiro, é por um ajuste de uma curva exponencial, já o segundo, uma soma de valores da derivada de $G(x)$ ao longo das iterações. Para o primeiro método, temos:
+
+\begin{equation}
+ d(i) = | G^{(i)}(x_0 + \epsilon) - G^{(i)}(x_0)|
+\end{equation}
+em que $i$ é o número de iterações do mapa e $G^{(i)}$ refere-se ao número de vezes que a função foi aplicada. Em outras palavras, $G^{(i)}(x_0) = G(x_{i-1})$, em que $x_{i-1}$ é a iteração anterior do mapa. O valor de $\epsilon$ deve ser pequeno em comparação a $x_0$. 
+
+Sabemos da literatura que $d_i$ inicialmente terá um comportamento exponencial, e, depois, irá saturar. Assim, nesse intervalo exponencial, podemos fazer um ajuste para uma reta em gráfico mono-log e calcular o expoente de Lyapunov $\lambda$. O segundo método é derivado a partir de uma expansão em taylor da expressão anterior, resultando em:
+
+\begin{equation}
+ \lambda = \frac{1}{n-1} \sum_{i=0}^{n-1} \ln |G'(x_i)| = \frac{1}{n-1} \sum_{i=0}^{n-1} \ln |r(1-2x_i)| 
+\end{equation}
+em que $G'(x)$ é a derivada de $G(x)$.
+
+Logo, o que estamos fazendo aqui é uma pequena modificação nas condições iniciais, observando que os resultados divergem exponencialmente dos sem modificação, o que caracteriza o caos se o expoente encontrado for maior que zero. Se o expoente for negativo, isso significa que as duas soluções irão convergir, não havendo caos.
+ 
+Para os dados de teste pedidos, temos o gráfico da Figura \ref{fig:div}. Para fazer o ajuste, usamos o intervalo de comportamento exponencial, estimado de $5$ até $40$. Além disso, podemos observar que a distância $d(i)$ se torna saturada, já que o máximo de diferença é limitado até um. Para os valores numéricos temos a Tabela \ref{tab:resultadosA}.
+
+\begin{table}[h!]
+\centering
+\caption{Resultados para o Expoente de Lyapunov ($\lambda$) com os valores da Figura \ref{fig:div} }
+\label{tab:resultadosA}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Expoente de Lyapunov ($\lambda$) & Valor Calculado \\ \midrule
+Método do Ajuste & $0.20227582043430373$ \\
+Método da Soma & $0.18411637919426829$ \\ \bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}
+ \centering
+ \includegraphics[width=1.0\linewidth]{Imagens/divergencia.png}
+ \caption{Gráfico da situação pedida no enunciado.}
+ \label{fig:div}
+\end{figure}
+
+\clearpage
+
+Além dessa análise numérica, podemos ver de forma qualitativa o comportamento conforme $r$ varia. A análise qualitativa genérica pode ser feita rodando o código exigido no projeto para os valores desejados. Nesse relatório, foram expostos os resultados numéricos pedidos explicitamente no enunciado. As três figuras que descrevem o comportamento são as Figuras \ref{fig:1}, \ref{fig:2} e \ref{fig:3}. Observa-se que, para os valores menores de $r$, $d(i)$ vai a zero, o que ocorre mais rapidamente para o menor valor de $r$. Isso reflete o comportamento de $\lambda < 0$. Para o caso com $r$ grande, temos, novamente, comportamento caótico.
+
+\begin{figure}[b]
+ \centering
+ \includegraphics[width=0.75\linewidth]{Imagens/1.png}
+ \caption{Análise de $d(i)$: vai a zero.}
+ \label{fig:1}
+\end{figure}
+
+\begin{figure}[b]
+ \centering
+ \includegraphics[width=0.75\linewidth]{Imagens/2.png}
+ \caption{Análise de $d(i)$: vai a zero rapidamente.}
+ \label{fig:2}
+\end{figure}
+
+\begin{figure}[b]
+ \centering
+ \includegraphics[width=0.75\linewidth]{Imagens/3.png}
+ \caption{Análise de $d(i)$: caos.}
+ \label{fig:3}
+\end{figure}
+
+\clearpage
+
+\section{\label{sec:conclusão} Conclusão}
+
+Logo, ao longo das tarefas, foi possível averiguar, tanto de forma qualitativa quanto numérica, a mudança de comportamento de um ponto fixo estável até o caos. Na seção \ref{sec:tratamento-geral}, focamos em uma análise quantitativa dos valores de $r$ aceitáveis e do comportamento geral qualitativo conforme variamos $r$. Na seção \ref{sec:rumo-ao-caos}, calculamos a Constante de Feigenbaum e o valor de $r_{\infty}$ para o início do caos, obtendo bons resultados em comparação com a literatura. Por último, na Seção \ref{sec:o-caos}, analisamos o Caos propriamente, observando a divergência exponencial de duas condições iniciais muito próximas, calculando o Expoente de
+Lyapunov por dois métodos distintos, que resultam em valores bem próximos e condizentes.
+
+
+\def\bibpreamble{\begin{center}\textbf{REFERÊNCIAS}\end{center}}
+
+\begin{thebibliography}{9}
+
+\bibitem{Giordano} Giordano, N. J. e Nakanishi, H., \emph{Computational Physics}. 2. ed. Pearson/Prentice Hall, 2006.
+
+\bibitem{Vuolo} Vuolo, J. H., \emph{Fundamentos da Teoria de Erros}. 2. ed. Editora Edgard Blücher, 1996.
+
+\end{thebibliography}
+
+\end{document}
