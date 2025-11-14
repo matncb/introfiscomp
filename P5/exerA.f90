@@ -70,7 +70,7 @@ program exerA
     x_i_eps = x0 + epsilon
 
     sum_ln_G_prime = 0.0_p
-    count_sum = 0.0
+    count_sum = 0
 
     
     ! regressão linear
