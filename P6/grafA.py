@@ -6,7 +6,7 @@ plt.style.use(['science', 'notebook', 'grid'])
 
 R_INICIAL = 1.0     # r (em UA)
 V0_INICIAL = 3.0    # v0 (velocidade inicial)
-DELTA_T = 0.0001     # delta_t (passo de tempo)
+DELTA_T = 0.000001     # delta_t (passo de tempo)
 FILENAME_INPUT = "grafA.dat"
 FILENAME_OUTPUT = "grafA.pdf"
 
@@ -87,8 +87,8 @@ for i, q_data in enumerate(quarters):
     ax.legend(loc='upper right', fontsize=10)
     
     # Define os limites para o mesmo zoom em todos os gráficos
-    ax.set_xlim(-max_abs, max_abs)
-    ax.set_ylim(-max_abs, max_abs)
+    ax.set_xlim(-max_abs*0.5, max_abs)
+    ax.set_ylim(-max_abs*0.8, max_abs*0.8)
 
 # Informações da simulação no rodapé
 fig.suptitle('Lei das Áreas: Órbita Elíptica (Trajetória no Plano X-Y)', fontsize=16, y=0.95)

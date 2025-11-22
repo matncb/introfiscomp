@@ -12,8 +12,9 @@ module parameters
     use precision
     implicit none
 
-    integer, parameter :: max_iter = 1000000
+    integer, parameter :: max_iter = 10000000
     real(p), parameter :: pi = 4._p* atan(1._p)
+    real(p), parameter :: GMS = 4.0_p*pi**2
 
 end module parameters
 
@@ -46,8 +47,8 @@ contains
                 exit
             end if
             
-            xi2 = 2*xi1 - xi - (4.0_p*pi**2) * delta_t**2 * (xi1/((xi1**2 + yi1**2)**(1.5_p)))
-            yi2 = 2*yi1 - yi - (4.0_p*pi**2) * delta_t**2 * (yi1/((xi1**2 + yi1**2)**(1.5_p)))
+            xi2 = 2*xi1 - xi - GMS * delta_t**2 * (xi1/((xi1**2 + yi1**2)**(1.5_p)))
+            yi2 = 2*yi1 - yi - GMS * delta_t**2 * (yi1/((xi1**2 + yi1**2)**(1.5_p)))
 
             tol = ((xi2 - xi1)**2 + (yi2-yi1)**2)/2
             if (((xi2 - x0)**2 + (yi2 - y0)**2) < tol) exit
@@ -87,8 +88,8 @@ contains
                 exit
             end if
             
-            xi2 = 2*xi1 - xi - (4.0_p*pi**2) * delta_t**2 * (xi1/((xi1**2 + yi1**2)**(1.5_p)))
-            yi2 = 2*yi1 - yi - (4.0_p*pi**2) * delta_t**2 * (yi1/((xi1**2 + yi1**2)**(1.5_p)))
+            xi2 = 2*xi1 - xi - GMS * delta_t**2 * (xi1/((xi1**2 + yi1**2)**(1.5_p)))
+            yi2 = 2*yi1 - yi - GMS * delta_t**2 * (yi1/((xi1**2 + yi1**2)**(1.5_p)))
 
             tol = ((xi2 - xi1)**2 + (yi2-yi1)**2)/2
             if (((xi2 - x0)**2 + (yi2 - y0)**2) < tol) exit
@@ -170,7 +171,24 @@ program exerA
     read(*,*) delta_t
 
     call verlet(r, 0.0_p, 0.0_p, v0, delta_t)
-    !call generate_kepler_table(0.001_p)
+    !call generate_kepler_table(0.0001_p)
 
+    write(*,*) "Para que a simulação orbital seja estável e represente &
+        &corretamente a física, o passo de tempo (delta_t) deve &
+        &ser pequeno em comparação com o período orbital (T)."
+    write(*,*) "Em termos físicos, o método de Verlet é ideal por sua &
+        &capacidade de conservar a Energia e o Momento Angular &
+        &do sistema, grandezas que devem ser constantes em um &
+        &campo de força central."
+    write(*,*) "Para um delta_t grande, como 0.1 anos (exemplo: 1.0, 3.0, 0.1), &
+        &a integração numérica falha, injetando ou drenando energia &
+        &do sistema, o que leva a uma órbita instável ou 'aberta'. &
+        &Nesses casos, a condição de parada por fechamento da órbita &
+        &não é satisfeita (como evitado pelo limite MAX_TIME)."
+    write(*,*) "Por outro lado, embora valores muito pequenos de delta_t &
+        &aumentem a precisão, eles resultam em um aumento gigantesco &
+        &no número de iterações e no tempo de execução, &
+        &o que representa um custo computacional desnecessário &
+        &após atingir a precisão desejada."
 
 end program exerA
